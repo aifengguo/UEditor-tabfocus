@@ -6,23 +6,34 @@ UE.plugin.register('tabfocus', function() {
     var me = this;
     var editor = this;
     var jQ;
+    var domUtils = baidu.editor.dom.domUtils;
+    editor.setOpt('usetabfocus', true);
     editor.setOpt('tabfocus_elements', ':prev,:next');
     editor.setOpt('tab_focus', editor.getOpt('tabfocus_elements'));
 
-    function tabCancel(e) {
+    if(!editor.getOpt('usetabfocus')){
+        return false
+    }
+
+    function tabCancel(type, e) {
         if (e.keyCode === 9 && !e.ctrlKey && !e.altKey && !e.metaKey) {
-            e.preventDefault();
+            domUtils.preventDefault(e);
+            return;
         }
     }
 
     function tabHandler(type, e) {
         var x, el, v, i;
+
         jQ = jQ || jQuery || function(){
             throw Error('depend on jQuery selector');
         }
+
         if (e.keyCode !== 9 || e.ctrlKey || e.altKey || e.metaKey) { // || e.isDefaultPrevented()
             return;
         }
+
+
 
         function find(direction) {
             el = jQ(':input:enabled,*[tabindex]:not(iframe)'); // use jQuery
@@ -83,6 +94,7 @@ UE.plugin.register('tabfocus', function() {
             }
         }
         if (el) {
+            
             var focusEditor = editor.textarea == el;
             if (el.id && focusEditor) {
                 editor.focus();
@@ -95,9 +107,8 @@ UE.plugin.register('tabfocus', function() {
                     el.focus();
                 }, 10);
             }
-
-            UE.dom.domUtils.preventDefault(e);
-            //e.preventDefault();
+            domUtils.preventDefault(e);
+            return;
         }
     }
 
